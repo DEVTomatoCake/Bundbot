@@ -1,0 +1,11 @@
+{
+  "name": "bundbot",
+  "version": "1.0.0",
+  "author": "TomatoCake",
+  "license": "MIT",
+  "repository": "https://github.com/DEVTomatoCake/Bundbot",
+  "dependencies": {
+    "discord.js": "^13.1.0",
+    "node-fetch": "2.6.1"
+  }
+}
