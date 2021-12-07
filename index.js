@@ -185,3 +185,48 @@ bot.on("messageCreate", async message => {
 })
 
 bot.login(token)
+	if (cmd == prefix + "produktwarn") {
+		const body = {
+		  	"food": {
+			    "rows": 500,
+			    "sort": "publishedDate desc, title asc",
+			    "start": 11,
+			    "fq": [
+			      	"publishedDate > 1630067654000"
+			    ]
+			},
+			"products": {
+			    "rows": 500,
+			    "sort": "publishedDate desc, title asc",
+			    "start": 11,
+			    "fq": [
+			      	"publishedDate > 1630067654000"
+			    ]
+			}
+		}
+		const res = await fetch("https://lebensmittelwarnung.api.proxy.bund.dev/verbraucherschutz/baystmuv-verbraucherinfo/rest/api/warnings/merged", {
+			method: "post",
+			body: JSON.stringify(body),
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": "baystmuv-vi-1.0 os=ios, key=9d9e8972-ff15-4943-8fea-117b5a973c61"
+			}
+		})
+		const json = await res.json()
+
+		var lebensmittelwarns = []
+		var produktwarns = []
+		json.response.docs.every(warning => {
+			if (lebensmittelwarns.length >= 3 && produktwarns.length >= 3) return false
+
+			if (warning._type == ".FoodWarning" && lebensmittelwarns.length < 3) {
+				lebensmittelwarns.push("Name: " + warning.title + "\nWarnung: " + (warning.warning.length > 120 ? warning.warning.substring(0, 117) + "..." : warning.warning) + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">")
+			} else if (warning._type == ".ProductWarning" && produktwarns.length < 3) {
+				produktwarns.push("Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">")
+			}
+
+			return true
+		})
+		reply("Es wurden **" + json.response.numFound + "** Einträge gefunden, je 3 Lebensmittel- und Produktwarnungen werden angezeigt:\n\n" + lebensmittelwarns.join("\n\n") + "\n\n---\n\n" + produktwarns.join("\n\n"))
+	}
+})
