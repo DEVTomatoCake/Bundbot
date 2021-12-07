@@ -1,37 +1,39 @@
 const Discord = require("discord.js")
 const bot = new Discord.Client({
 	allowedMentions: {
+		repliedUser: false,
 		parse: ["users"]
 	},
-	repliedUser: false,
 	intents: [
 		Discord.Intents.FLAGS.GUILDS,
 		Discord.Intents.FLAGS.GUILD_MESSAGES
 	]
 })
+bot.login("TOKEN")
 const fetch = require("node-fetch")
 const prefix = "-"
 
 bot.on("ready", async () => {
-	bot.user.setPresence({activities: [{name: "-help", type: "LISTENING"}]})
+	bot.user.setPresence({activities: [{name: prefix + "help", type: "LISTENING"}]})
 })
 
 const help = [
-	"`-list`\nZeigt eine Liste aller deutschen Autobahnen an",
-	"`-listwebcams <Autobahn>`\nZeigt eine Liste aller Webcams auf einer Autobahn an",
-	"`-listwarnings <Autobahn>`\nZeigt eine Liste aller Verkehrsmeldungen einer Autobahn an",
-	"`-listbaustellen <Autobahn>`\nZeigt eine Liste aller Baustellen einer Autobahn an",
-	"`-listsperrungen <Autobahn>`\nZeigt eine Liste aller Sperrungen einer Autobahn an",
-	"`-listrastplätze <Autobahn>`\nZeigt eine Liste aller Rastplätze einer Autobahn an",
-	"`-listladestationen <Autobahn>`\nZeigt eine Liste aller Ladestationen einer Autobahn an",
-	"`-katwarn`\nZeigt alle Katwarn-Meldungen an",
-	"`-biwapp`\nZeigt alle Biwapp-Meldungen an",
-	"`-mowas`\nZeigt alle Mowas-Meldungen an"
+	"`" + prefix + "list`\nZeigt eine Liste aller deutschen Autobahnen an",
+	"`" + prefix + "listwebcams <Autobahn>`\nZeigt eine Liste aller Webcams auf einer Autobahn an",
+	"`" + prefix + "listwarnings <Autobahn>`\nZeigt eine Liste aller Verkehrsmeldungen einer Autobahn an",
+	"`" + prefix + "listbaustellen <Autobahn>`\nZeigt eine Liste aller Baustellen einer Autobahn an",
+	"`" + prefix + "listsperrungen <Autobahn>`\nZeigt eine Liste aller Sperrungen einer Autobahn an",
+	"`" + prefix + "listrastplätze <Autobahn>`\nZeigt eine Liste aller Rastplätze einer Autobahn an",
+	"`" + prefix + "listladestationen <Autobahn>`\nZeigt eine Liste aller Ladestationen einer Autobahn an",
+	"`" + prefix + "katwarn`\nZeigt alle Katwarn-Meldungen an",
+	"`" + prefix + "biwapp`\nZeigt alle Biwapp-Meldungen an",
+	"`" + prefix + "mowas`\nZeigt alle Mowas-Meldungen an",
+	"`" + prefix + "produktwarn`\nZeigt Lebensmittel- und Produktwarnungen an"
 ]
 
 function clean(text) {
 	if (typeof text == "string") {
-		text = text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`).replace(new RegExp(token, "gi"), ":sus:")
+		text = text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`).replace(new RegExp(bot.token, "gi"), "")
 	}
 	return text
 }
@@ -54,7 +56,7 @@ bot.on("messageCreate", async message => {
 	if (!message.guild.available) return
 
 	reply = data => {
-		if (typeof data == "string" && data.length >= 2000) data = data.substring(0, 1997) + "..."
+		if (typeof data == "string" && data.length > 2000) data = data.substring(0, 1997) + "..."
 		message.reply(data)
 	}
 
@@ -66,9 +68,7 @@ bot.on("messageCreate", async message => {
 	let cmd = messageArray[0].toString().toLowerCase()
 	let args = messageArray.slice(1)
 
-	if (cmd == prefix + "help") {
-		message.reply(help.join("\n\n"))
-	}
+	if (cmd == prefix + "help") message.reply(help.join("\n\n"))
 
 	if (cmd == prefix + "list") {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn")
@@ -182,9 +182,7 @@ bot.on("messageCreate", async message => {
 		})
 		reply("Liste aller **Mowas**-Meldungen:\n\n" + mowas.join("\n"))
 	}
-})
 
-bot.login(token)
 	if (cmd == prefix + "produktwarn") {
 		const body = {
 		  	"food": {
