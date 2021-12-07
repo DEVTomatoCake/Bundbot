@@ -1,11 +1,15 @@
 {
-  "name": "bundbot",
-  "version": "1.0.0",
-  "author": "TomatoCake",
-  "license": "MIT",
-  "repository": "https://github.com/DEVTomatoCake/Bundbot",
-  "dependencies": {
-    "discord.js": "^13.1.0",
-    "node-fetch": "2.6.1"
-  }
+	"name": "bundbot",
+	"version": "1.1.0",
+	"author": "TomatoCake",
+	"description": "A discord bot, which uses the bund.dev api to display open data",
+	"license": "MIT",
+	"repository": "github:DEVTomatoCake/Bundbot",
+	"dependencies": {
+		"discord.js": "^13.3.1",
+		"node-fetch": "2.6.1"
+	},
+	"engines": {
+	    "node": ">=16.6.0"
+	}
 }
