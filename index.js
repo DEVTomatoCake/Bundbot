@@ -220,7 +220,7 @@ bot.on("messageCreate", async message => {
 			if (warning._type == ".FoodWarning" && lebensmittelwarns.length < 3) {
 				lebensmittelwarns.push("Name: " + warning.title + "\nWarnung: " + (warning.warning.length > 120 ? warning.warning.substring(0, 117) + "..." : warning.warning) + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">")
 			} else if (warning._type == ".ProductWarning" && produktwarns.length < 3) {
-				produktwarns.push("Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">")
+				produktwarns.push("Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nZusatz: " + (warning.safetyInformation.hazard && warning.safetyInformation.injury ? warning.safetyInformation.hazard + ", " + warning.safetyInformation.injury : warning.safetyInformation.ordinance) + "\nLink: <" + warning.link + ">")
 			}
 
 			return true
