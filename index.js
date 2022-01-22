@@ -31,13 +31,6 @@ const help = [
 	"`" + prefix + "produktwarn`\nZeigt Lebensmittel- und Produktwarnungen an"
 ]
 
-function clean(text) {
-	if (typeof text == "string") {
-		text = text.replace(/`/g, `\`${String.fromCharCode(8203)}`).replace(/@/g, `@${String.fromCharCode(8203)}`).replace(new RegExp(bot.token, "gi"), "")
-	}
-	return text
-}
-
 function warningIcon(severity) {
 	if (severity == "Severe") return ":bangbang: "
 	else if (severity == "Minor") return ":exclamation: "
@@ -55,7 +48,7 @@ bot.on("messageCreate", async message => {
 	if (message.channel.type == "DM") return
 	if (!message.guild.available) return
 
-	reply = data => {
+	const reply = data => {
 		if (typeof data == "string" && data.length > 2000) data = data.substring(0, 1997) + "..."
 		message.reply(data)
 	}
@@ -82,7 +75,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/webcam")
 		const json = await res.json()
 
-		webcams = []
+		var webcams = []
 		json.webcam.forEach(webcam => {
 			if (webcam.linkurl != "" && webcam.linkurl != "https://#") webcams.push(webcam.subtitle + ": " + webcam.linkurl)
 		})
@@ -94,7 +87,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/warning")
 		const json = await res.json()
 
-		warnings = []
+		var warnings = []
 		json.warning.forEach(warning => {
 			warnings.push(warning.description.join(" "))
 		})
@@ -106,7 +99,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/roadworks")
 		const json = await res.json()
 
-		baustellen = []
+		var baustellen = []
 		json.roadworks.forEach(roadworks => {
 			baustellen.push(roadworks.description.join(" "))
 		})
@@ -118,7 +111,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/closure")
 		const json = await res.json()
 
-		sperrungen = []
+		var sperrungen = []
 		json.closure.forEach(closure => {
 			sperrungen.push(closure.description.join(" "))
 		})
@@ -130,7 +123,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/parking_lorry")
 		const json = await res.json()
 
-		rastplatze = []
+		var rastplatze = []
 		json.parking_lorry.forEach(rastplatz => {
 			rastplatze.push(rastplatz.title + ": " + rastplatz.description.join(", ").trim())
 		})
@@ -142,7 +135,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/electric_charging_stations")
 		const json = await res.json()
 
-		ladestationen = []
+		var ladestationen = []
 		json.electric_charging_stations.forEach(ladestation => {
 			ladestationen.push(ladestation.description.join(" "))
 		})
@@ -154,7 +147,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://warnung.bund.de/api31/katwarn/mapData.json")
 		const json = await res.json()
 
-		katwarn = []
+		var katwarn = []
 		json.forEach(warning => {
 			katwarn.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de))
 		})
@@ -165,7 +158,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://warnung.bund.de/api31/biwapp/mapData.json")
 		const json = await res.json()
 
-		biwapp = []
+		var biwapp = []
 		json.forEach(warning => {
 			biwapp.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
@@ -176,7 +169,7 @@ bot.on("messageCreate", async message => {
 		const res = await fetch("https://warnung.bund.de/api31/mowas/mapData.json")
 		const json = await res.json()
 
-		mowas = []
+		var mowas = []
 		json.forEach(warning => {
 			if (warning.type == "Alert") mowas.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
