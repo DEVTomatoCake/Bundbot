@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"repository": "github:DEVTomatoCake/Bundbot",
 	"dependencies": {
-		"discord.js": "^13.3.1",
+		"discord.js": "13.3.1",
 		"node-fetch": "2.6.1"
 	},
 	"engines": {
