@@ -10,7 +10,6 @@ const bot = new Discord.Client({
 	]
 })
 bot.login("TOKEN")
-const fetch = require("node-fetch")
 const prefix = "-"
 
 bot.on("ready", async () => {
