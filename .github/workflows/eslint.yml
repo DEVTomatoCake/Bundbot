@@ -2,7 +2,6 @@ name: ESLint
 
 on:
   push:
-    branches: [ master ]
 
 jobs:
   lint:
@@ -19,4 +18,4 @@ jobs:
           cache: "npm"
 
       - name: "🔍 lint code"
-        run: npm run lint
+        run: npx eslint . --report-unused-disable-directives
