@@ -5,30 +5,128 @@ const bot = new Discord.Client({
 		parse: ["users"]
 	},
 	intents: [
-		Discord.Intents.FLAGS.GUILDS,
-		Discord.Intents.FLAGS.GUILD_MESSAGES
+		Discord.GatewayIntentBits.Guilds
 	]
 })
-bot.login("TOKEN")
-const prefix = "-"
+bot.login("OTE3ODUxMDIzNzM1OTM5MTAy.GUC6zO.2nwBfuQBFbhNTcdROS-LQgblOjtYDaiewmIXac")
+
+function migrateSlashOptions(options) {
+	for (let i = 0; i < options.length; i++) {
+		if (options[i].options) options[i].options = migrateSlashOptions(options[i].options)
+		if (options[i].type == "SUB_COMMAND") options[i].type = Discord.ApplicationCommandOptionType.Subcommand
+		else if (options[i].type == "SUB_COMMAND_GROUP") options[i].type = Discord.ApplicationCommandOptionType.SubcommandGroup
+		else if (options[i].type == "STRING") options[i].type = Discord.ApplicationCommandOptionType.String
+		else if (options[i].type == "INTEGER") options[i].type = Discord.ApplicationCommandOptionType.Integer
+		else if (options[i].type == "BOOLEAN") options[i].type = Discord.ApplicationCommandOptionType.Boolean
+		else if (options[i].type == "USER") options[i].type = Discord.ApplicationCommandOptionType.User
+		else if (options[i].type == "CHANNEL") options[i].type = Discord.ApplicationCommandOptionType.Channel
+		else if (options[i].type == "ROLE") options[i].type = Discord.ApplicationCommandOptionType.Role
+		else if (options[i].type == "MENTIONABLE") options[i].type = Discord.ApplicationCommandOptionType.Mentionable
+		else if (options[i].type == "NUMBER") options[i].type = Discord.ApplicationCommandOptionType.Number
+		else if (options[i].type == "ATTACHMENT") options[i].type = Discord.ApplicationCommandOptionType.Attachment
+	}
+	return options
+}
 
 bot.on("ready", async () => {
-	bot.user.setPresence({activities: [{name: prefix + "help", type: "LISTENING"}]})
-})
+	bot.user.setPresence({activities: [{name: "/help", type: "LISTENING"}]})
+	console.log("Bot wurde gestartet .-.")
 
-const help = [
-	"`" + prefix + "list`\nZeigt eine Liste aller deutschen Autobahnen an",
-	"`" + prefix + "listwebcams <Autobahn>`\nZeigt eine Liste aller Webcams auf einer Autobahn an",
-	"`" + prefix + "listwarnings <Autobahn>`\nZeigt eine Liste aller Verkehrsmeldungen einer Autobahn an",
-	"`" + prefix + "listbaustellen <Autobahn>`\nZeigt eine Liste aller Baustellen einer Autobahn an",
-	"`" + prefix + "listsperrungen <Autobahn>`\nZeigt eine Liste aller Sperrungen einer Autobahn an",
-	"`" + prefix + "listrastplätze <Autobahn>`\nZeigt eine Liste aller Rastplätze einer Autobahn an",
-	"`" + prefix + "listladestationen <Autobahn>`\nZeigt eine Liste aller Ladestationen einer Autobahn an",
-	"`" + prefix + "katwarn`\nZeigt alle Katwarn-Meldungen an",
-	"`" + prefix + "biwapp`\nZeigt alle Biwapp-Meldungen an",
-	"`" + prefix + "mowas`\nZeigt alle Mowas-Meldungen an",
-	"`" + prefix + "produktwarn`\nZeigt Lebensmittel- und Produktwarnungen an"
-]
+	const commands = [
+		{
+			name: "mowas",
+			description: "Zeigt Meldungen und Warnungen von Mowas"
+		},{
+			name: "biwapp",
+			description: "Zeigt Meldungen und Warnungen von Biwapp"
+		},{
+			name: "katwarn",
+			description: "Zeigt Meldungen und Warnungen von Katwarn"
+		},{
+			name: "productwarn",
+			description: "Zeigt aktuelle Produktwarnungen"
+		},{
+			name: "autobahn",
+			description: "Autobahn-Infos",
+			options: [{
+				name: "list",
+				type: "SUB_COMMAND",
+				description: "Listet alle Autobahnen auf"
+			},{
+				name: "webcams",
+				type: "SUB_COMMAND",
+				description: "Listet alle Webcams einer Autobahn auf",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			},{
+				name: "warnings",
+				type: "SUB_COMMAND",
+				description: "Listet alle Warnungen einer Autobahn auf",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			},{
+				name: "sperrungen",
+				type: "SUB_COMMAND",
+				description: "Listet alle Sperrungen einer Autobahn auf",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			},{
+				name: "baustellen",
+				type: "SUB_COMMAND",
+				description: "Zeigt Baustellen auf einer Autobahn",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			},{
+				name: "rastplaetze",
+				type: "SUB_COMMAND",
+				description: "Zeigt Rastplätze auf einer Autobahn",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			},{
+				name: "ladestationen",
+				type: "SUB_COMMAND",
+				description: "Zeigt Elektro-Ladestationen auf einer Autobahn",
+				options: [{
+					name: "id",
+					type: "STRING",
+					description: "Der Name der Autobahn",
+					required: true
+				}]
+			}]
+		}
+	]
+
+	const migratedcommands = []
+	commands.every(cmd => {
+		const cmdcopy = cmd
+
+		if (cmdcopy.options) cmdcopy.options = migrateSlashOptions(cmdcopy.options)
+
+		migratedcommands.push(cmdcopy)
+		return true
+	})
+	bot.application.commands.set(migratedcommands)
+})
 
 function warningIcon(severity) {
 	if (severity == "Severe") return ":bangbang: "
@@ -41,141 +139,111 @@ function checkAutobahn(string) {
 	else return false
 }
 
-bot.on("messageCreate", async message => {
-	if (message.author.bot) return
-	if (message.webhookId) return
-	if (message.channel.type == "DM") return
-	if (!message.guild.available) return
+bot.on("interactionCreate", async interaction => {
+	if (interaction.user.bot || interaction.channel.type == Discord.ChannelType.DM) return
 
 	const reply = data => {
 		if (typeof data == "string" && data.length > 2000) data = data.substring(0, 1997) + "..."
-		message.reply(data)
+		interaction.reply(data)
 	}
 
-	const botperms = message.channel.permissionsFor(message.guild.me)
-	if (!botperms.has("VIEW_CHANNEL")) return
-	if (!botperms.has("READ_MESSAGE_HISTORY")) return
-	if (!botperms.has("SEND_MESSAGES")) return
-	let messageArray = message.content.split(" ")
-	let cmd = messageArray[0].toString().toLowerCase()
-	let args = messageArray.slice(1)
+	if (interaction.commandName == "autobahn") {
+		const args = [interaction.options.getSubcommand(), interaction.options.getString("id", false)]
+		if (args[0] == "list") {
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn")
+			const json = await res.json()
 
-	if (cmd == prefix + "help") message.reply(help.join("\n\n"))
+			interaction.reply("Liste aller Autobahnen in Deutschland:\n\n" + json.roads.join(" "))
+		} else if (args[0] == "webcams") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/webcam")
+			const json = await res.json()
 
-	if (cmd == prefix + "list") {
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn")
-		const json = await res.json()
+			var webcams = []
+			json.webcam.forEach(webcam => {
+				if (webcam.linkurl != "" && webcam.linkurl != "https://#") webcams.push(webcam.subtitle + ": " + webcam.linkurl)
+			})
+			reply("Liste aller Webcams der **" + args[1] + "**:\n\n" + webcams.join("\n"))
+		} else if (args[0] == "warnings") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/warning")
+			const json = await res.json()
 
-		message.reply("Liste aller Autobahnen in Deutschland:\n\n" + json.roads.join(" "))
-	}
+			var warnings = []
+			json.warning.forEach(warning => {
+				warnings.push(warning.description.join(" "))
+			})
+			reply("Liste aller Verkehrsmeldungen der **" + args[1] + "**:\n\n" + warnings.join("\n"))
+		} else if (args[0] == "baustellen") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/roadworks")
+			const json = await res.json()
 
-	if (cmd == prefix + "listwebcams") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/webcam")
-		const json = await res.json()
+			var baustellen = []
+			json.roadworks.forEach(roadworks => {
+				baustellen.push(roadworks.description.join(" "))
+			})
+			reply("Liste aller Baustellen der **" + args[1] + "**:\n\n" + baustellen.join("\n"))
+		} else if (args[0] == "sperrungen") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/closure")
+			const json = await res.json()
 
-		var webcams = []
-		json.webcam.forEach(webcam => {
-			if (webcam.linkurl != "" && webcam.linkurl != "https://#") webcams.push(webcam.subtitle + ": " + webcam.linkurl)
-		})
-		reply("Liste aller Webcams der **" + args[0] + "**:\n\n" + webcams.join("\n"))
-	}
+			var sperrungen = []
+			json.closure.forEach(closure => {
+				sperrungen.push(closure.description.join(" "))
+			})
+			reply("Liste aller Sperrungen der **" + args[1] + "**:\n\n" + sperrungen.join("\n"))
+		} else if (args[0] == "rastplaetze") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/parking_lorry")
+			const json = await res.json()
 
-	if (cmd == prefix + "listwarnings") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/warning")
-		const json = await res.json()
+			var rastplatze = []
+			json.parking_lorry.forEach(rastplatz => {
+				rastplatze.push(rastplatz.title + ": " + rastplatz.description.join(", ").trim())
+			})
+			reply("Liste aller Rastplätze der **" + args[1] + "**:\n\n" + rastplatze.join("\n"))
+		} else if (args[0] == "ladestationen") {
+			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/electric_charging_stations")
+			const json = await res.json()
 
-		var warnings = []
-		json.warning.forEach(warning => {
-			warnings.push(warning.description.join(" "))
-		})
-		reply("Liste aller Verkehrsmeldungen der **" + args[0] + "**:\n\n" + warnings.join("\n"))
-	}
-
-	if (cmd == prefix + "listbaustellen") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/roadworks")
-		const json = await res.json()
-
-		var baustellen = []
-		json.roadworks.forEach(roadworks => {
-			baustellen.push(roadworks.description.join(" "))
-		})
-		reply("Liste aller Baustellen der **" + args[0] + "**:\n\n" + baustellen.join("\n"))
-	}
-
-	if (cmd == prefix + "listsperrungen") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/closure")
-		const json = await res.json()
-
-		var sperrungen = []
-		json.closure.forEach(closure => {
-			sperrungen.push(closure.description.join(" "))
-		})
-		reply("Liste aller Sperrungen der **" + args[0] + "**:\n\n" + sperrungen.join("\n"))
-	}
-
-	if (cmd == prefix + "listrastplätze") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/parking_lorry")
-		const json = await res.json()
-
-		var rastplatze = []
-		json.parking_lorry.forEach(rastplatz => {
-			rastplatze.push(rastplatz.title + ": " + rastplatz.description.join(", ").trim())
-		})
-		reply("Liste aller Rastplätze der **" + args[0] + "**:\n\n" + rastplatze.join("\n"))
-	}
-
-	if (cmd == prefix + "listladestationen") {
-		if (!checkAutobahn(args.join(" "))) return message.reply("Du musst eine gültige Autobahn angeben!")
-		const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[0] + "/services/electric_charging_stations")
-		const json = await res.json()
-
-		var ladestationen = []
-		json.electric_charging_stations.forEach(ladestation => {
-			ladestationen.push(ladestation.description.join(" "))
-		})
-		if (ladestationen.length == 0) message.reply("Die **" + args[0] + "** hat keine elektrischen Ladestationen!")
-		else reply("Liste aller Elektro-Ladestationen der **" + args[0] + "**:\n\n" + ladestationen.join("\n"))
-	}
-
-	if (cmd == prefix + "katwarn") {
+			var ladestationen = []
+			json.electric_charging_stations.forEach(ladestation => {
+				ladestationen.push(ladestation.description.join(" "))
+			})
+			if (ladestationen.length == 0) interaction.reply("Die **" + args[1] + "** hat keine elektrischen Ladestationen!")
+			else reply("Liste aller Elektro-Ladestationen der **" + args[1] + "**:\n\n" + ladestationen.join("\n"))
+		}
+	} else if (interaction.commandName == "katwarn") {
 		const res = await fetch("https://warnung.bund.de/api31/katwarn/mapData.json")
 		const json = await res.json()
 
 		var katwarn = []
 		json.forEach(warning => {
-			katwarn.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de))
+			katwarn.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de))
 		})
 		reply("Liste aller **Katwarn**-Meldungen:\n\n" + katwarn.join("\n"))
-	}
-
-	if (cmd == prefix + "biwapp") {
+	} else if (interaction.commandName == "biwapp") {
 		const res = await fetch("https://warnung.bund.de/api31/biwapp/mapData.json")
 		const json = await res.json()
 
 		var biwapp = []
 		json.forEach(warning => {
-			biwapp.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
+			biwapp.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
 		reply("Liste aller **Biwapp**-Meldungen:\n\n" + biwapp.join("\n"))
-	}
-
-	if (cmd == prefix + "mowas") {
+	} else if (interaction.commandName == "mowas") {
 		const res = await fetch("https://warnung.bund.de/api31/mowas/mapData.json")
 		const json = await res.json()
 
 		var mowas = []
 		json.forEach(warning => {
-			if (warning.type == "Alert") mowas.push(warningIcon(warning.severity) + Discord.Util.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
+			if (warning.type == "Alert") mowas.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
 		reply("Liste aller **Mowas**-Meldungen:\n\n" + mowas.join("\n"))
-	}
-
-	if (cmd == prefix + "produktwarn") {
+	} else if (interaction.commandName == "produktwarn") {
 		const body = {
 		  	"food": {
 			    "rows": 500,
