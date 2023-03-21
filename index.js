@@ -8,7 +8,7 @@ const bot = new Discord.Client({
 		Discord.GatewayIntentBits.Guilds
 	]
 })
-bot.login("OTE3ODUxMDIzNzM1OTM5MTAy.GUC6zO.2nwBfuQBFbhNTcdROS-LQgblOjtYDaiewmIXac")
+bot.login(require("./config.json").token)
 
 function migrateSlashOptions(options) {
 	for (let i = 0; i < options.length; i++) {
@@ -159,7 +159,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/webcam")
 			const json = await res.json()
 
-			var webcams = []
+			const webcams = []
 			json.webcam.forEach(webcam => {
 				if (webcam.linkurl != "" && webcam.linkurl != "https://#") webcams.push(webcam.subtitle + ": " + webcam.linkurl)
 			})
@@ -169,7 +169,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/warning")
 			const json = await res.json()
 
-			var warnings = []
+			const warnings = []
 			json.warning.forEach(warning => {
 				warnings.push(warning.description.join(" "))
 			})
@@ -179,7 +179,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/roadworks")
 			const json = await res.json()
 
-			var baustellen = []
+			const baustellen = []
 			json.roadworks.forEach(roadworks => {
 				baustellen.push(roadworks.description.join(" "))
 			})
@@ -189,7 +189,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/closure")
 			const json = await res.json()
 
-			var sperrungen = []
+			const sperrungen = []
 			json.closure.forEach(closure => {
 				sperrungen.push(closure.description.join(" "))
 			})
@@ -199,7 +199,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/parking_lorry")
 			const json = await res.json()
 
-			var rastplatze = []
+			const rastplatze = []
 			json.parking_lorry.forEach(rastplatz => {
 				rastplatze.push(rastplatz.title + ": " + rastplatz.description.join(", ").trim())
 			})
@@ -209,7 +209,7 @@ bot.on("interactionCreate", async interaction => {
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/electric_charging_stations")
 			const json = await res.json()
 
-			var ladestationen = []
+			const ladestationen = []
 			json.electric_charging_stations.forEach(ladestation => {
 				ladestationen.push(ladestation.description.join(" "))
 			})
@@ -220,7 +220,7 @@ bot.on("interactionCreate", async interaction => {
 		const res = await fetch("https://warnung.bund.de/api31/katwarn/mapData.json")
 		const json = await res.json()
 
-		var katwarn = []
+		const katwarn = []
 		json.forEach(warning => {
 			katwarn.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de))
 		})
@@ -229,7 +229,7 @@ bot.on("interactionCreate", async interaction => {
 		const res = await fetch("https://warnung.bund.de/api31/biwapp/mapData.json")
 		const json = await res.json()
 
-		var biwapp = []
+		const biwapp = []
 		json.forEach(warning => {
 			biwapp.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
@@ -238,28 +238,28 @@ bot.on("interactionCreate", async interaction => {
 		const res = await fetch("https://warnung.bund.de/api31/mowas/mapData.json")
 		const json = await res.json()
 
-		var mowas = []
+		const mowas = []
 		json.forEach(warning => {
 			if (warning.type == "Alert") mowas.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
 		})
 		reply("Liste aller **Mowas**-Meldungen:\n\n" + mowas.join("\n"))
 	} else if (interaction.commandName == "produktwarn") {
 		const body = {
-		  	"food": {
-			    "rows": 500,
-			    "sort": "publishedDate desc, title asc",
-			    "start": 11,
-			    "fq": [
-			      	"publishedDate > 1630067654000"
-			    ]
+			food: {
+				rows: 500,
+				sort: "publishedDate desc, title asc",
+				start: 11,
+				fq: [
+					"publishedDate > 1630067654000"
+				]
 			},
-			"products": {
-			    "rows": 500,
-			    "sort": "publishedDate desc, title asc",
-			    "start": 11,
-			    "fq": [
-			      	"publishedDate > 1630067654000"
-			    ]
+			products: {
+				rows: 500,
+				sort: "publishedDate desc, title asc",
+				start: 11,
+				fq: [
+					"publishedDate > 1630067654000"
+				]
 			}
 		}
 		const res = await fetch("https://lebensmittelwarnung.api.proxy.bund.dev/verbraucherschutz/baystmuv-verbraucherinfo/rest/api/warnings/merged", {
@@ -272,8 +272,8 @@ bot.on("interactionCreate", async interaction => {
 		})
 		const json = await res.json()
 
-		var lebensmittelwarns = []
-		var produktwarns = []
+		const lebensmittelwarns = []
+		const produktwarns = []
 		json.response.docs.every(warning => {
 			if (lebensmittelwarns.length >= 3 && produktwarns.length >= 3) return false
 
