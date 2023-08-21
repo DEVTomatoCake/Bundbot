@@ -13,6 +13,6 @@
 	},
 	"homepage": "https://github.com/DEVTomatoCake/Bundbot#readme",
 	"dependencies": {
-		"discord.js": "^14.12.1"
+		"discord.js": "^14.13.0"
 	}
 }
