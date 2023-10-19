@@ -11,19 +11,19 @@ const bot = new Discord.Client({
 bot.login(require("./config.json").token)
 
 function migrateSlashOptions(options) {
-	for (let i = 0; i < options.length; i++) {
-		if (options[i].options) options[i].options = migrateSlashOptions(options[i].options)
-		if (options[i].type == "SUB_COMMAND") options[i].type = Discord.ApplicationCommandOptionType.Subcommand
-		else if (options[i].type == "SUB_COMMAND_GROUP") options[i].type = Discord.ApplicationCommandOptionType.SubcommandGroup
-		else if (options[i].type == "STRING") options[i].type = Discord.ApplicationCommandOptionType.String
-		else if (options[i].type == "INTEGER") options[i].type = Discord.ApplicationCommandOptionType.Integer
-		else if (options[i].type == "BOOLEAN") options[i].type = Discord.ApplicationCommandOptionType.Boolean
-		else if (options[i].type == "USER") options[i].type = Discord.ApplicationCommandOptionType.User
-		else if (options[i].type == "CHANNEL") options[i].type = Discord.ApplicationCommandOptionType.Channel
-		else if (options[i].type == "ROLE") options[i].type = Discord.ApplicationCommandOptionType.Role
-		else if (options[i].type == "MENTIONABLE") options[i].type = Discord.ApplicationCommandOptionType.Mentionable
-		else if (options[i].type == "NUMBER") options[i].type = Discord.ApplicationCommandOptionType.Number
-		else if (options[i].type == "ATTACHMENT") options[i].type = Discord.ApplicationCommandOptionType.Attachment
+	for (const option of options) {
+		if (option.options) option.options = migrateSlashOptions(option.options)
+		if (option.type == "SUB_COMMAND") option.type = Discord.ApplicationCommandOptionType.Subcommand
+		else if (option.type == "SUB_COMMAND_GROUP") option.type = Discord.ApplicationCommandOptionType.SubcommandGroup
+		else if (option.type == "STRING") option.type = Discord.ApplicationCommandOptionType.String
+		else if (option.type == "INTEGER") option.type = Discord.ApplicationCommandOptionType.Integer
+		else if (option.type == "BOOLEAN") option.type = Discord.ApplicationCommandOptionType.Boolean
+		else if (option.type == "USER") option.type = Discord.ApplicationCommandOptionType.User
+		else if (option.type == "CHANNEL") option.type = Discord.ApplicationCommandOptionType.Channel
+		else if (option.type == "ROLE") option.type = Discord.ApplicationCommandOptionType.Role
+		else if (option.type == "MENTIONABLE") option.type = Discord.ApplicationCommandOptionType.Mentionable
+		else if (option.type == "NUMBER") option.type = Discord.ApplicationCommandOptionType.Number
+		else if (option.type == "ATTACHMENT") option.type = Discord.ApplicationCommandOptionType.Attachment
 	}
 	return options
 }
@@ -132,12 +132,7 @@ function warningIcon(severity) {
 	if (severity == "Severe") return "‼️ "
 	if (severity == "Minor") return "❗ "
 }
-
-const autobahnregex = new RegExp(/A\d{1,3}/g)
-function checkAutobahn(string) {
-	if (string.match(autobahnregex)) return true
-	else return false
-}
+const checkAutobahn = str => /A\d{1,3}/g.test(str)
 
 bot.on("interactionCreate", async interaction => {
 	if (interaction.user.bot || interaction.channel.type == Discord.ChannelType.DM) return
