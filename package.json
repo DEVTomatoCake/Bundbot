@@ -2,17 +2,23 @@
 	"name": "bundbot",
 	"version": "2.0.0",
 	"author": "TomatoCake",
+	"private": true,
 	"description": "A Discord bot which uses the bund.dev api to display Germany related open data",
 	"license": "MIT",
 	"repository": {
-	  "type": "git",
-	  "url": "git+https://github.com/DEVTomatoCake/Bundbot.git"
+		"type": "git",
+		"url": "git+https://github.com/DEVTomatoCake/Bundbot.git"
 	},
 	"bugs": {
-	  "url": "https://github.com/DEVTomatoCake/Bundbot/issues"
+		"url": "https://github.com/DEVTomatoCake/Bundbot/issues"
 	},
 	"homepage": "https://github.com/DEVTomatoCake/Bundbot#readme",
 	"dependencies": {
 		"discord.js": "^14.13.0"
+	},
+	"devDependencies": {
+		"eslint": "^8.51.0",
+		"eslint-plugin-sonarjs": "^0.21.0",
+		"eslint-plugin-unicorn": "^48.0.1"
 	}
 }

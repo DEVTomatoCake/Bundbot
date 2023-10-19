@@ -29,7 +29,7 @@ function migrateSlashOptions(options) {
 }
 
 bot.on("ready", async () => {
-	bot.user.setPresence({activities: [{name: "/help", type: "LISTENING"}]})
+	bot.user.setPresence({activities: [{name: "Custom Status", state: "/help", type: Discord.ActivityType.Custom}]})
 	console.log("Bot wurde gestartet .-.")
 
 	const commands = [
@@ -129,8 +129,8 @@ bot.on("ready", async () => {
 })
 
 function warningIcon(severity) {
-	if (severity == "Severe") return ":bangbang: "
-	else if (severity == "Minor") return ":exclamation: "
+	if (severity == "Severe") return "‼️ "
+	if (severity == "Minor") return "❗ "
 }
 
 const autobahnregex = new RegExp(/A\d{1,3}/g)
@@ -150,13 +150,21 @@ bot.on("interactionCreate", async interaction => {
 	if (interaction.commandName == "autobahn") {
 		const args = [interaction.options.getSubcommand(), interaction.options.getString("id", false)]
 		if (args[0] == "list") {
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			interaction.reply("Liste aller Autobahnen in Deutschland:\n\n" + json.roads.join(" "))
 		} else if (args[0] == "webcams") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/webcam")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/webcam", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const webcams = []
@@ -166,7 +174,11 @@ bot.on("interactionCreate", async interaction => {
 			reply("Liste aller Webcams der **" + args[1] + "**:\n\n" + webcams.join("\n"))
 		} else if (args[0] == "warnings") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/warning")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/warning", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const warnings = []
@@ -176,7 +188,11 @@ bot.on("interactionCreate", async interaction => {
 			reply("Liste aller Verkehrsmeldungen der **" + args[1] + "**:\n\n" + warnings.join("\n"))
 		} else if (args[0] == "baustellen") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/roadworks")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/roadworks", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const baustellen = []
@@ -186,7 +202,11 @@ bot.on("interactionCreate", async interaction => {
 			reply("Liste aller Baustellen der **" + args[1] + "**:\n\n" + baustellen.join("\n"))
 		} else if (args[0] == "sperrungen") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/closure")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/closure", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const sperrungen = []
@@ -196,7 +216,11 @@ bot.on("interactionCreate", async interaction => {
 			reply("Liste aller Sperrungen der **" + args[1] + "**:\n\n" + sperrungen.join("\n"))
 		} else if (args[0] == "rastplaetze") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/parking_lorry")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/parking_lorry", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const rastplatze = []
@@ -206,7 +230,11 @@ bot.on("interactionCreate", async interaction => {
 			reply("Liste aller Rastplätze der **" + args[1] + "**:\n\n" + rastplatze.join("\n"))
 		} else if (args[0] == "ladestationen") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/electric_charging_stations")
+			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/electric_charging_stations", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
 			const json = await res.json()
 
 			const ladestationen = []
@@ -217,7 +245,11 @@ bot.on("interactionCreate", async interaction => {
 			else reply("Liste aller Elektro-Ladestationen der **" + args[1] + "**:\n\n" + ladestationen.join("\n"))
 		}
 	} else if (interaction.commandName == "katwarn") {
-		const res = await fetch("https://warnung.bund.de/api31/katwarn/mapData.json")
+		const res = await fetch("https://warnung.bund.de/api31/katwarn/mapData.json", {
+			headers: {
+				Accept: "application/json"
+			}
+		})
 		const json = await res.json()
 
 		const katwarn = []
@@ -226,7 +258,11 @@ bot.on("interactionCreate", async interaction => {
 		})
 		reply("Liste aller **Katwarn**-Meldungen:\n\n" + katwarn.join("\n"))
 	} else if (interaction.commandName == "biwapp") {
-		const res = await fetch("https://warnung.bund.de/api31/biwapp/mapData.json")
+		const res = await fetch("https://warnung.bund.de/api31/biwapp/mapData.json", {
+			headers: {
+				Accept: "application/json"
+			}
+		})
 		const json = await res.json()
 
 		const biwapp = []
@@ -235,7 +271,11 @@ bot.on("interactionCreate", async interaction => {
 		})
 		reply("Liste aller **Biwapp**-Meldungen:\n\n" + biwapp.join("\n"))
 	} else if (interaction.commandName == "mowas") {
-		const res = await fetch("https://warnung.bund.de/api31/mowas/mapData.json")
+		const res = await fetch("https://warnung.bund.de/api31/mowas/mapData.json", {
+			headers: {
+				Accept: "application/json"
+			}
+		})
 		const json = await res.json()
 
 		const mowas = []
@@ -263,11 +303,12 @@ bot.on("interactionCreate", async interaction => {
 			}
 		}
 		const res = await fetch("https://lebensmittelwarnung.api.proxy.bund.dev/verbraucherschutz/baystmuv-verbraucherinfo/rest/api/warnings/merged", {
-			method: "post",
+			method: "POST",
 			body: JSON.stringify(body),
 			headers: {
+				Authorization: "baystmuv-vi-1.0 os=ios, key=9d9e8972-ff15-4943-8fea-117b5a973c61",
 				"Content-Type": "application/json",
-				"Authorization": "baystmuv-vi-1.0 os=ios, key=9d9e8972-ff15-4943-8fea-117b5a973c61"
+				Accept: "application/json"
 			}
 		})
 		const json = await res.json()
@@ -277,11 +318,15 @@ bot.on("interactionCreate", async interaction => {
 		json.response.docs.every(warning => {
 			if (lebensmittelwarns.length >= 3 && produktwarns.length >= 3) return false
 
-			if (warning._type == ".FoodWarning" && lebensmittelwarns.length < 3) {
-				lebensmittelwarns.push("Name: " + warning.title + "\nWarnung: " + (warning.warning.length > 120 ? warning.warning.substring(0, 117) + "..." : warning.warning) + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">")
-			} else if (warning._type == ".ProductWarning" && produktwarns.length < 3) {
-				produktwarns.push("Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nZusatz: " + (warning.safetyInformation.hazard && warning.safetyInformation.injury ? warning.safetyInformation.hazard + ", " + warning.safetyInformation.injury : warning.safetyInformation.ordinance) + "\nLink: <" + warning.link + ">")
-			}
+			if (warning._type == ".FoodWarning" && lebensmittelwarns.length < 3) lebensmittelwarns.push(
+				"Name: " + warning.title + "\nWarnung: " + (warning.warning.length > 120 ? warning.warning.substring(0, 117) + "..." : warning.warning) +
+				"\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nLink: <" + warning.link + ">"
+			)
+			else if (warning._type == ".ProductWarning" && produktwarns.length < 3) produktwarns.push(
+				"Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nZusatz: " +
+				(warning.safetyInformation.hazard && warning.safetyInformation.injury ? warning.safetyInformation.hazard + ", " + warning.safetyInformation.injury : warning.safetyInformation.ordinance) +
+				"\nLink: <" + warning.link + ">"
+			)
 
 			return true
 		})
