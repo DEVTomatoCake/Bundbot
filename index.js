@@ -28,9 +28,18 @@ function migrateSlashOptions(options) {
 	return options
 }
 
+let roads = []
 bot.on("ready", async () => {
-	bot.user.setPresence({activities: [{name: "Custom Status", state: "/help", type: Discord.ActivityType.Custom}]})
-	console.log("Bot wurde gestartet .-.")
+	bot.user.setPresence({activities: [{name: "Custom Status", state: "bund.dev-Bot - Slashcommands", type: Discord.ActivityType.Custom}]})
+	console.log("Bot wurde als " + bot.user.tag + " gestartet!")
+
+	const res = await fetch("https://verkehr.autobahn.de/o/autobahn", {
+		headers: {
+			Accept: "application/json"
+		}
+	})
+	const json = await res.json()
+	roads = json.roads
 
 	const commands = [
 		{
@@ -60,6 +69,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			},{
@@ -70,6 +80,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			},{
@@ -80,6 +91,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			},{
@@ -90,6 +102,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			},{
@@ -100,6 +113,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			},{
@@ -110,6 +124,7 @@ bot.on("ready", async () => {
 					name: "id",
 					type: "STRING",
 					description: "Der Name der Autobahn",
+					autocomplete: true,
 					required: true
 				}]
 			}]
@@ -137,6 +152,11 @@ const checkAutobahn = str => /A\d{1,3}/g.test(str)
 bot.on("interactionCreate", async interaction => {
 	if (interaction.user.bot || interaction.channel.type == Discord.ChannelType.DM) return
 
+	if (interaction.type == Discord.InteractionType.ApplicationCommandAutocomplete) {
+		const input = interaction.options.getFocused(true)
+		return interaction.respond(roads.filter(road => road.toLowerCase().includes(input.value)).map(road => ({name: road, value: road})).slice(0, 25))
+	}
+
 	const reply = data => {
 		if (typeof data == "string" && data.length > 2000) data = data.substring(0, 1997) + "..."
 		interaction.reply(data)
@@ -145,14 +165,7 @@ bot.on("interactionCreate", async interaction => {
 	if (interaction.commandName == "autobahn") {
 		const args = [interaction.options.getSubcommand(), interaction.options.getString("id", false)]
 		if (args[0] == "list") {
-			const res = await fetch("https://verkehr.autobahn.de/o/autobahn", {
-				headers: {
-					Accept: "application/json"
-				}
-			})
-			const json = await res.json()
-
-			interaction.reply("Liste aller Autobahnen in Deutschland:\n\n" + json.roads.join(" "))
+			interaction.reply("Liste aller Autobahnen in Deutschland:\n\n" + roads.join(" "))
 		} else if (args[0] == "webcams") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
 			const res = await fetch("https://verkehr.autobahn.de/o/autobahn/" + args[1] + "/services/webcam", {
@@ -220,7 +233,7 @@ bot.on("interactionCreate", async interaction => {
 
 			const rastplatze = []
 			json.parking_lorry.forEach(rastplatz => {
-				rastplatze.push(rastplatz.title + ": " + rastplatz.description.join(", ").trim())
+				rastplatze.push(rastplatz.title + ": " + rastplatz.description.map(desc => desc.trim()).join(", "))
 			})
 			reply("Liste aller Rastplätze der **" + args[1] + "**:\n\n" + rastplatze.join("\n"))
 		} else if (args[0] == "ladestationen") {

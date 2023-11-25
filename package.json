@@ -9,9 +9,6 @@
 		"type": "git",
 		"url": "git+https://github.com/DEVTomatoCake/Bundbot.git"
 	},
-	"bugs": {
-		"url": "https://github.com/DEVTomatoCake/Bundbot/issues"
-	},
 	"homepage": "https://github.com/DEVTomatoCake/Bundbot#readme",
 	"dependencies": {
 		"discord.js": "^14.14.1"

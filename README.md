@@ -1,7 +1,18 @@
 # Bundbot
 Discord-Bot, welcher die [bund.dev-API](https://bund.dev/) nutzt, um mehr (oder weniger) hilfreiche Informationen anzuzeigen
 
-## Autobahn
+## Setup
+
+`config.json`:
+```json
+{
+	"token": "<Discord-Bot-Token>"
+}
+```
+
+## Features
+
+### Autobahn
 - Alle Autobahnen auflisten (`-list`)
 - Webcams einer Autobahn auflisten (`-listwebcams <Autobahn>`)
 - Webcams einer Autobahn auflisten (`-listwarnings <Autobahn>`)
@@ -10,10 +21,10 @@ Discord-Bot, welcher die [bund.dev-API](https://bund.dev/) nutzt, um mehr (oder 
 - Rastplätze einer Autobahn auflisten (`-listrastplätze <Autobahn>`)
 - Elektrische Ladestationen einer Autobahn auflisten (`-listladestationen <Autobahn>`)
 
-## NINA
+### NINA
 - Katwarn-Meldungen anzeigen (`-katwarn`)
 - Biwapp-Meldungen anzeigen (`-biwapp`)
 - Mowas-Meldungen anzeigen (`-mowas`)
 
-## Lebensmittel- und Produktwarnungen
+### Lebensmittel- und Produktwarnungen
 - Lebensmittel- und Produktwarnungen anzeigen (`-produktwarn`)
