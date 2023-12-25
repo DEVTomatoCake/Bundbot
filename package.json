@@ -16,6 +16,6 @@
 	"devDependencies": {
 		"eslint": "^8.56.0",
 		"eslint-plugin-sonarjs": "^0.23.0",
-		"eslint-plugin-unicorn": "^49.0.0"
+		"eslint-plugin-unicorn": "^50.0.1"
 	}
 }
