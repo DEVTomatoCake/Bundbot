@@ -10,28 +10,10 @@ const bot = new Discord.Client({
 })
 bot.login(require("./config.json").token)
 
-function migrateSlashOptions(options) {
-	for (const option of options) {
-		if (option.options) option.options = migrateSlashOptions(option.options)
-		if (option.type == "SUB_COMMAND") option.type = Discord.ApplicationCommandOptionType.Subcommand
-		else if (option.type == "SUB_COMMAND_GROUP") option.type = Discord.ApplicationCommandOptionType.SubcommandGroup
-		else if (option.type == "STRING") option.type = Discord.ApplicationCommandOptionType.String
-		else if (option.type == "INTEGER") option.type = Discord.ApplicationCommandOptionType.Integer
-		else if (option.type == "BOOLEAN") option.type = Discord.ApplicationCommandOptionType.Boolean
-		else if (option.type == "USER") option.type = Discord.ApplicationCommandOptionType.User
-		else if (option.type == "CHANNEL") option.type = Discord.ApplicationCommandOptionType.Channel
-		else if (option.type == "ROLE") option.type = Discord.ApplicationCommandOptionType.Role
-		else if (option.type == "MENTIONABLE") option.type = Discord.ApplicationCommandOptionType.Mentionable
-		else if (option.type == "NUMBER") option.type = Discord.ApplicationCommandOptionType.Number
-		else if (option.type == "ATTACHMENT") option.type = Discord.ApplicationCommandOptionType.Attachment
-	}
-	return options
-}
-
 let roads = []
 bot.on("ready", async () => {
 	bot.user.setPresence({activities: [{name: "Custom Status", state: "bund.dev-Bot - Slashcommands", type: Discord.ActivityType.Custom}]})
-	console.log("Bot wurde als " + bot.user.tag + " gestartet!")
+	console.log("Bot ist online: " + bot.user.tag)
 
 	const res = await fetch("https://verkehr.autobahn.de/o/autobahn", {
 		headers: {
@@ -59,70 +41,70 @@ bot.on("ready", async () => {
 			description: "Autobahn-Infos",
 			options: [{
 				name: "list",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Listet alle Autobahnen auf"
 			},{
 				name: "webcams",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Listet alle Webcams einer Autobahn auf",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
 				}]
 			},{
 				name: "warnings",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Listet alle Warnungen einer Autobahn auf",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
 				}]
 			},{
 				name: "sperrungen",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Listet alle Sperrungen einer Autobahn auf",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
 				}]
 			},{
 				name: "baustellen",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Zeigt Baustellen auf einer Autobahn",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
 				}]
 			},{
 				name: "rastplaetze",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Zeigt Rastplätze auf einer Autobahn",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
 				}]
 			},{
 				name: "ladestationen",
-				type: "SUB_COMMAND",
+				type: Discord.ApplicationCommandOptionType.Subcommand,
 				description: "Zeigt Elektro-Ladestationen auf einer Autobahn",
 				options: [{
 					name: "id",
-					type: "STRING",
+					type: Discord.ApplicationCommandOptionType.String,
 					description: "Der Name der Autobahn",
 					autocomplete: true,
 					required: true
@@ -131,21 +113,14 @@ bot.on("ready", async () => {
 		}
 	]
 
-	const migratedcommands = []
-	commands.every(cmd => {
-		const cmdcopy = cmd
-
-		if (cmdcopy.options) cmdcopy.options = migrateSlashOptions(cmdcopy.options)
-
-		migratedcommands.push(cmdcopy)
-		return true
-	})
-	bot.application.commands.set(migratedcommands)
+	bot.application.commands.set(commands)
 })
 
-function warningIcon(severity) {
+const warningIcon = severity => {
+	if (severity == "Extreme") return "🚨 "
 	if (severity == "Severe") return "‼️ "
 	if (severity == "Minor") return "❗ "
+	return ""
 }
 const checkAutobahn = str => /A\d{1,3}/g.test(str)
 
@@ -179,6 +154,8 @@ bot.on("interactionCreate", async interaction => {
 			json.webcam.forEach(webcam => {
 				if (webcam.linkurl != "" && webcam.linkurl != "https://#") webcams.push(webcam.subtitle + ": " + webcam.linkurl)
 			})
+
+			if (webcams.length == 0) return interaction.reply("Die Autobahn **" + args[1] + "** hat keine Webcams!")
 			reply("Liste aller Webcams der **" + args[1] + "**:\n\n" + webcams.join("\n"))
 		} else if (args[0] == "warnings") {
 			if (!checkAutobahn(args.join(" "))) return interaction.reply("Du musst eine gültige Autobahn angeben!")
@@ -288,10 +265,13 @@ bot.on("interactionCreate", async interaction => {
 
 		const mowas = []
 		json.forEach(warning => {
-			if (warning.type == "Alert") mowas.push(warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) + ", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>")
+			if (warning.type == "Alert") mowas.push(
+				warningIcon(warning.severity) + Discord.escapeMarkdown(warning.i18nTitle.de) +
+				", gestartet <t:" + Math.round((new Date(warning.startDate)).getTime() / 1000) + ":R>"
+			)
 		})
 		reply("Liste aller **Mowas**-Meldungen:\n\n" + mowas.join("\n"))
-	} else if (interaction.commandName == "produktwarn") {
+	} else if (interaction.commandName == "productwarn") {
 		const body = {
 			food: {
 				rows: 500,
@@ -332,12 +312,15 @@ bot.on("interactionCreate", async interaction => {
 			)
 			else if (warning._type == ".ProductWarning" && produktwarns.length < 3) produktwarns.push(
 				"Name: " + warning.title + "\nVeröffentlicht: <t:" + Math.round(warning.publishedDate / 1000) + ":R>\nZusatz: " +
-				(warning.safetyInformation.hazard && warning.safetyInformation.injury ? warning.safetyInformation.hazard + ", " + warning.safetyInformation.injury : warning.safetyInformation.ordinance) +
+				(warning.safetyInformation.hazard && warning.safetyInformation.injury ?
+					warning.safetyInformation.hazard + ", " + warning.safetyInformation.injury : warning.safetyInformation.ordinance
+				) +
 				"\nLink: <" + warning.link + ">"
 			)
 
 			return true
 		})
-		reply("Es wurden **" + json.response.numFound + "** Einträge gefunden, je 3 Lebensmittel- und Produktwarnungen werden angezeigt:\n\n" + lebensmittelwarns.join("\n\n") + "\n\n---\n\n" + produktwarns.join("\n\n"))
+		reply("Es wurden **" + json.response.numFound + "** Einträge gefunden, je 3 Lebensmittel- und Produktwarnungen werden angezeigt:\n\n" +
+			lebensmittelwarns.join("\n\n") + "\n\n---\n\n" + produktwarns.join("\n\n"))
 	}
 })

@@ -14,8 +14,10 @@
 		"discord.js": "^14.15.3"
 	},
 	"devDependencies": {
+		"@stylistic/eslint-plugin-js": "^2.1.0",
 		"eslint": "^9.4.0",
 		"eslint-plugin-sonarjs": "^1.0.3",
-		"eslint-plugin-unicorn": "^53.0.0"
+		"eslint-plugin-unicorn": "^53.0.0",
+		"globals": "^15.3.0"
 	}
 }
